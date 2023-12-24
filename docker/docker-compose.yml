@@ -1,0 +1,44 @@
+version: '3.0'
+
+services:
+  redis-stack:
+    image: redis/redis-stack-server:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis:/data
+
+  mysql:
+    container_name: "mysql8"
+    build: ./mysql
+    restart: always
+    volumes:
+      - db:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  phpmyadmin:
+    container_name: "phpmyadmin"
+    links:
+      - mysql
+    build: ./phpmyadmin
+    restart: always
+    environment:
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+      - PMA_ARBITRARY=1
+    ports:
+      - "3307:80"
+    depends_on:
+      - mysql
+
+volumes:
+  db: {}
+  redis: {}
+  mq_data: {}
+  mq_conf: {}
+
+
+networks:
+  default:
+    driver: bridge
